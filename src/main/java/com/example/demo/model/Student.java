@@ -1,7 +1,17 @@
 package com.example.demo.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "student")
 public class Student {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Integer studentId;
+
+    @Column(name = "name")
     private String studentName;
 
     public Student(){}
