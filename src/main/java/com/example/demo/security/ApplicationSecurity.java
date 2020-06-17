@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+import javax.sql.DataSource;
 import java.util.concurrent.TimeUnit;
 
 import static com.example.demo.security.Permissions.*;
@@ -22,7 +24,12 @@ import static com.example.demo.security.Roles.STUDENT;
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
+/*
 
+    @Autowired
+    DataSource dataSource;
+
+*/
     @Autowired
     private PasswordEncoderConfig passwordEncoder;
 
@@ -31,7 +38,7 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()//.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
                 .authorizeRequests()
-                .antMatchers("/", "index", "/css/*", "/js/*")
+                .antMatchers("/")
                 .permitAll()
                 .antMatchers("/api/v1/students/**").hasRole(STUDENT.name())
                 .antMatchers(HttpMethod.POST, "/api/v1/management/**").hasAuthority(STUDENT_WRITE.getPermission())
@@ -51,7 +58,7 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 //.rememberMe();
                 .rememberMe()
-                    .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
+                    //.tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(30))
                     .rememberMeParameter("rememberme")
                 .and()
                 .logout()
@@ -81,5 +88,14 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
         return new InMemoryUserDetailsManager(admin, student);
     }
+/*
+
+    @Autowired
+    public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        auth.jdbcAuthentication().dataSource(dataSource)
+                .usersByUsernameQuery("select username,password, enabled from user where username=?")
+                .authoritiesByUsernameQuery("select username, role from user_role where username=?");
+    }
+*/
 
 }
