@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
@@ -40,12 +41,12 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/")
                 .permitAll()
-                .antMatchers("/api/v1/students/**").hasRole(STUDENT.name())
+                /*.antMatchers("/api/v1/students/**").hasRole(STUDENT.name())
                 .antMatchers(HttpMethod.POST, "/api/v1/management/**").hasAuthority(STUDENT_WRITE.getPermission())
                 .antMatchers(HttpMethod.PUT, "/api/v1/management/**").hasAuthority(STUDENT_WRITE.getPermission())
                 .antMatchers(HttpMethod.DELETE, "/api/v1/management/**").hasAuthority(STUDENT_WRITE.getPermission())
                 .antMatchers(HttpMethod.GET, "/api/v1/management/**").hasAnyRole(STUDENT.name(), ADMIN.name())
-                .anyRequest()
+                */.anyRequest()
                 .authenticated()
                 .and()
                 //.httpBasic();
@@ -53,8 +54,8 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                     .loginPage("/login")
                     .permitAll()
                     .defaultSuccessUrl("/welcome", true)
-                    .usernameParameter("username")
-                    .passwordParameter("password")
+                    //.usernameParameter("username")
+                    //.passwordParameter("password")
                 .and()
                 //.rememberMe();
                 .rememberMe()
@@ -69,7 +70,8 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                     .logoutSuccessUrl("/login");
     }
 
-    @Override
+    //In memory user data authentication
+    /*@Override
     @Bean
     protected UserDetailsService userDetailsService(){
         UserDetails admin = User.builder()
@@ -87,15 +89,32 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .build();
 
         return new InMemoryUserDetailsManager(admin, student);
-    }
-/*
+    }*/
 
     @Autowired
     public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+
+        //jdbc authentication
+        /*
         auth.jdbcAuthentication().dataSource(dataSource)
                 .usersByUsernameQuery("select username,password, enabled from user where username=?")
                 .authoritiesByUsernameQuery("select username, role from user_role where username=?");
+        */
+
+        //LDAP authentication
+        auth
+                .ldapAuthentication()
+                .userDnPatterns("uid={0},ou=people")
+                .groupSearchBase("ou=groups")
+                .contextSource()
+                .url("ldap://localhost:8389/dc=example,dc=com")
+                //.url("ldap://localhost:10389/dc=example,dc=com") // 10389 is Apache DS default port
+                .and()
+                .passwordCompare()
+
+                //.passwordEncoder(passwordEncoder.passwordEncoder()) // load data is BCrypted
+                .passwordEncoder(new LdapShaPasswordEncoder()) // Apache DS data is in SHA
+                .passwordAttribute("userPassword");
     }
-*/
 
 }
