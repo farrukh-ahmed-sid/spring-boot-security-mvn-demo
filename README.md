@@ -1,3 +1,7 @@
 # spring-boot-security-mvn-demo
 IntelliJ Workspace
-Learn by 5hr Spring Security course
+Protecting CRUD functions with
+- Basic HTTP 
+- Form Based 
+- JDBC Authentication
+- LDAP Authentication
