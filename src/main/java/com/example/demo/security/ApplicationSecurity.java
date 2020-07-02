@@ -112,8 +112,8 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .passwordCompare()
 
-                //.passwordEncoder(passwordEncoder.passwordEncoder()) // load data is BCrypted
-                .passwordEncoder(new LdapShaPasswordEncoder()) // Apache DS data is in SHA
+                .passwordEncoder(passwordEncoder.passwordEncoder()) // load data is BCrypted
+                //.passwordEncoder(new LdapShaPasswordEncoder()) // Apache DS data is in SHA
                 .passwordAttribute("userPassword");
     }
 
